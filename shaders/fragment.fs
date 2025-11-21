@@ -1,9 +1,12 @@
 #version 460 core
+in vec3 vColor;
+in vec2 TexCoord;
 
-in vec3 vColor;       // From vertex shader
-out vec4 FragColor;   // Final pixel color
+out vec4 FragColor;
+
+uniform sampler2D texture1; // the texture
 
 void main()
 {
-    FragColor = vec4(vColor, 1.0);
+    FragColor = texture(texture1, TexCoord) * vec4(vColor, 1.0); // sample texture
 }

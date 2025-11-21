@@ -16,6 +16,9 @@ set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/glfw-3.4/build/src/Release")
 set(GLAD_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 set(GLAD_SRC "${CMAKE_SOURCE_DIR}/src/glad.c")
 
+# stb_image include
+set(STB_IMAGE_INCLUDE_DIR "{CMAKE_SOURCE_DIR}/include")
+
 # ------------------------------
 # Build executable
 # ------------------------------
@@ -27,8 +30,10 @@ add_executable(OpenGLProject
     ${GLAD_SRC}
 )
 
-
 file(COPY ${CMAKE_SOURCE_DIR}/shaders
+     DESTINATION ${CMAKE_BINARY_DIR})
+
+file(COPY ${CMAKE_SOURCE_DIR}/textures
      DESTINATION ${CMAKE_BINARY_DIR})
 
 # ------------------------------
@@ -37,6 +42,7 @@ file(COPY ${CMAKE_SOURCE_DIR}/shaders
 target_include_directories(OpenGLProject PRIVATE
     ${GLFW_INCLUDE_DIR}
     ${GLAD_INCLUDE_DIR}
+    ${STB_IMAGE_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/include
 )
 
