@@ -13,21 +13,26 @@ void processInput(GLFWwindow* window) {
 
 int main()
 {
+    // Initialise glfw
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
 
+
+    // Create window
+    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
     if (window == NULL) {
         std::cout << "GLAD not working";
         glfwTerminate();
         return -1;
     }
-
     glfwMakeContextCurrent(window);
 
+
+
+    // Initialise glad
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -35,11 +40,127 @@ int main()
     }
 
     glViewport(0, 0, 800, 600);
-
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+
+    
+    //Triangle vertices
+    float vertices[] = {
+         0.5f,  0.5f, 0.0f,  // top right
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f  // top left
+    };
+
+    unsigned int indices[] = {
+        0, 1, 3,
+        1, 2, 3,
+    };
+
+
+
+    // Vertex Shader
+    const char* vertexShaderSource = R"glsl(
+        #version 460 core
+        layout(location = 0) in vec3 aPos;
+        void main() {
+            gl_Position = vec4(aPos, 1.0);
+        }
+    )glsl";
+
+
+
+    // Fragment Shader
+    const char* fragmentShaderSource = R"glsl(
+        #version 460 core
+        out vec4 FragColor;
+        void main() {
+            FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+        }
+    )glsl";
+
+
+
+    // Compile vertex shader
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cerr << "ERROR::VERTEX_SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+
+
+    // Compile fragment shader
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cerr << "ERROR::FRAGMENT_SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+
+
+    // link shader program
+    unsigned int shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cerr << "ERROR::SHADER_PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+
+    glDeleteShader(vertexShader); // delete shaders since already linked
+    glDeleteShader(fragmentShader);
+
+
+
+    // setup VAO, VBO, and EBO
+    unsigned int VAO, VBO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO); // bind VAO
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind VBO
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // bind buffer data
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // bind EBO
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); // bind buffer data
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // bind vertex attribs
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // unbind
+    glBindVertexArray(0);
+
+
+
+    // render loop
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
+
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // draw as wireframe
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
