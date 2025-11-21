@@ -20,10 +20,16 @@ set(GLAD_SRC "${CMAKE_SOURCE_DIR}/src/glad.c")
 # Build executable
 # ------------------------------
 
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "src/*.cpp" "include/*.hpp")
+
 add_executable(OpenGLProject
-    src/main.cpp
+    ${PROJECT_SOURCES}
     ${GLAD_SRC}
 )
+
+
+file(COPY ${CMAKE_SOURCE_DIR}/shaders
+     DESTINATION ${CMAKE_BINARY_DIR})
 
 # ------------------------------
 # Include directories
@@ -31,6 +37,7 @@ add_executable(OpenGLProject
 target_include_directories(OpenGLProject PRIVATE
     ${GLFW_INCLUDE_DIR}
     ${GLAD_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}/include
 )
 
 # ------------------------------
