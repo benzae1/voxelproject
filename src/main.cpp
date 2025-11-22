@@ -7,16 +7,55 @@
 #include <shader.hpp>
 #include <texture.hpp>
 #include <chunk.hpp>
+#include <camera.hpp>
 #include <mesh.hpp>
+
+Camera camera(glm::vec3(0.0f, 10.0f, 30.0f));
+float lastX = 1280 / 2.0f;
+float lastY = 720 / 2.0f;
+bool firstMouse = true;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window) {
+void processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.processKeyboard(GLFW_KEY_W, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.processKeyboard(GLFW_KEY_S, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.processKeyboard(GLFW_KEY_A, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.processKeyboard(GLFW_KEY_D, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.processKeyboard(GLFW_KEY_SPACE, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        camera.processKeyboard(GLFW_KEY_LEFT_CONTROL, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
+
+void mouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoff = xpos - lastX;
+    float yoff = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.processMouse(xoff, yoff);
+}
+
 
 int main()
 {
@@ -31,7 +70,7 @@ int main()
 
 
 
-    // Create window
+    // Create window + allow for cursor look around
     GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
     if (window == NULL) {
         std::cout << "GLAD not working";
@@ -39,7 +78,8 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
-
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouseCallback);
 
 
     // Initialise glad
@@ -85,14 +125,17 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         shader.use();
         shader.setInt("texture1", 0);
         
         texture.bind(0);
 
         // View transform (camera)
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -50.0f));
-        shader.setMat4("view", view);
+        shader.setMat4("view", camera.getViewMatrix());
 
         // Projection
         glm::mat4 projection = glm::perspective(
