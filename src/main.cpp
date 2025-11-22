@@ -6,6 +6,7 @@
 #include <iostream>
 #include <shader.hpp>
 #include <texture.hpp>
+#include <mesh.hpp>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -58,50 +59,55 @@ int main()
 
     
     //cube vertices 
-    float vertices[] = {
-        // positions          // colors           // texcoords
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+    std::vector<float> cubeVertices = {
+        // Back face
+        -0.5f, -0.5f, -0.5f, 1,0,0, 0,0,
+         0.5f, -0.5f, -0.5f, 0,1,0, 1,0,
+         0.5f,  0.5f, -0.5f, 0,0,1, 1,1,
+        -0.5f,  0.5f, -0.5f, 1,1,0, 0,1,
 
-        -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+        // Front face
+        -0.5f, -0.5f,  0.5f, 1,0,0, 0,0,
+         0.5f, -0.5f,  0.5f, 0,1,0, 1,0,
+         0.5f,  0.5f,  0.5f, 0,0,1, 1,1,
+        -0.5f,  0.5f,  0.5f, 1,1,0, 0,1,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+        // Left face
+        -0.5f, -0.5f, -0.5f, 1,0,1, 0,0,
+        -0.5f, -0.5f,  0.5f, 0,1,1, 1,0,
+        -0.5f,  0.5f,  0.5f, 0,1,0, 1,1,
+        -0.5f,  0.5f, -0.5f, 1,1,0, 0,1,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+        // Right face
+         0.5f, -0.5f, -0.5f, 1,0,1, 0,0,
+         0.5f, -0.5f,  0.5f, 0,1,1, 1,0,
+         0.5f,  0.5f,  0.5f, 0,1,0, 1,1,
+         0.5f,  0.5f, -0.5f, 1,1,0, 0,1,
 
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f,   0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+         // Bottom
+         -0.5f, -0.5f, -0.5f, 1,0,1, 0,1,
+          0.5f, -0.5f, -0.5f, 1,1,1, 1,1,
+          0.5f, -0.5f,  0.5f, 1,1,0, 1,0,
+         -0.5f, -0.5f,  0.5f, 1,0,1, 0,0,
 
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,   0.0f, 1.0f
+         // Top
+         -0.5f,  0.5f, -0.5f, 1,1,0, 0,1,
+          0.5f,  0.5f, -0.5f, 0,1,1, 1,1,
+          0.5f,  0.5f,  0.5f, 0,1,1, 1,0,
+         -0.5f,  0.5f,  0.5f, 1,1,0, 0,0
     };
+
+
+
+    std::vector<unsigned int> cubeIndices = {
+        0,1,2, 2,3,0,       // back
+        4,5,6, 6,7,4,       // front
+        8,9,10, 10,11,8,    // left
+        12,13,14, 14,15,12, // right
+        16,17,18, 18,19,16, // bottom
+        20,21,22, 22,23,20  // top
+    };
+
 
 
 
@@ -115,28 +121,9 @@ int main()
 
 
 
-    // setup VAO, VBO, and EBO
-    unsigned int VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO); // bind VAO
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind VBO
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // bind buffer data
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    // texture coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // unbind
-    glBindVertexArray(0);
+    // load vertices into mesh
+    Mesh mesh = Mesh();
+    mesh.update(cubeVertices, cubeIndices);
 
 
 
@@ -173,9 +160,7 @@ int main()
         );
         shader.setMat4("projection", projection);
 
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+        mesh.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
