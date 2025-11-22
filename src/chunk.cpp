@@ -1,4 +1,5 @@
 #include "chunk.hpp"
+#include <block.hpp>
 
 Chunk::Chunk(glm::vec3 pos)
     : position(pos)
@@ -38,22 +39,38 @@ void Chunk::addFace(std::vector<float>& vertices,
     const glm::vec3 faceVerts[4]) {
     unsigned int startIndex = vertices.size() / 8;
 
+    // Get block type
+    uint8_t type = blocks[x][y][z];
+
+    float r = 1.0f, g = 1.0f, b = 1.0f;
+
+    // Pick color based on block
+    switch (type) {
+        case BLOCK_GRASS: r = 0.2f; g = 0.6f; b = 0.2f; break;
+        case BLOCK_DIRT:  r = 0.59f; g = 0.29f; b = 0.0f; break;
+        case BLOCK_STONE: r = 0.5f; g = 0.5f; b = 0.5f; break;
+        default: break; // air should never generate a face
+    }
+
+    // Add the 4 face vertices 
     for (int i = 0; i < 4; i++) {
         glm::vec3 p = faceVerts[i] + glm::vec3(x, y, z) + position;
 
         vertices.insert(vertices.end(), {
-            p.x, p.y, p.z,             // pos
-            1.0f, 1.0f, 1.0f,           // color (white for now)
-            (float)(i == 1 || i == 2), // u
-            (float)(i >= 2)            // v
+            p.x, p.y, p.z,      // position
+            r, g, b,            // color per block
+            (float)(i == 1 || i == 2), // UV.u
+            (float)(i >= 2)            // UV.v
             });
     }
 
+    //  Add indices for two triangles 
     indices.insert(indices.end(), {
         startIndex, startIndex + 1, startIndex + 2,
         startIndex, startIndex + 2, startIndex + 3
         });
 }
+
 
 void Chunk::buildMesh()
 {

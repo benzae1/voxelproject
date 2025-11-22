@@ -9,6 +9,7 @@
 #include <chunk.hpp>
 #include <camera.hpp>
 #include <mesh.hpp>
+#include <world.hpp>
 
 Camera camera(glm::vec3(0.0f, 10.0f, 30.0f));
 float lastX = 1280 / 2.0f;
@@ -99,20 +100,13 @@ int main()
 
 
     
-    //load chunk
-    Chunk chunk(glm::vec3(0, 0, 0));
-    chunk.generateTestData();
-    chunk.buildMesh();
-
+    //load world
+    World world(16, 16);
+    world.generateTerrain();
 
 
     //Shader loading
     Shader shader("shaders/vertex.vs", "shaders/fragment.fs");
-
-
-
-    //Texture loading
-    Texture texture("textures/noise.jpg");
 
 
 
@@ -130,9 +124,6 @@ int main()
         lastFrame = currentFrame;
 
         shader.use();
-        shader.setInt("texture1", 0);
-        
-        texture.bind(0);
 
         // View transform (camera)
         shader.setMat4("view", camera.getViewMatrix());
@@ -148,7 +139,7 @@ int main()
 
         shader.setMat4("model", glm::mat4(1.0f));
 
-        chunk.draw();
+        world.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

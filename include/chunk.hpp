@@ -6,8 +6,9 @@
 class Chunk {
 public:
     static constexpr int SIZE_X = 16;
-    static constexpr int SIZE_Y = 16;
+    static constexpr int SIZE_Y = 64;
     static constexpr int SIZE_Z = 16;
+    uint8_t blocks[SIZE_X][SIZE_Y][SIZE_Z];
 
     Chunk(glm::vec3 position);
 
@@ -19,7 +20,6 @@ public:
 private:
     glm::vec3 position;
     Mesh mesh;
-    uint8_t blocks[SIZE_X][SIZE_Y][SIZE_Z];
 
     void addFace(std::vector<float>& vertices,
         std::vector<unsigned int>& indices,
