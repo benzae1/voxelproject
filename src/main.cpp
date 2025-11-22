@@ -6,6 +6,7 @@
 #include <iostream>
 #include <shader.hpp>
 #include <texture.hpp>
+#include <chunk.hpp>
 #include <mesh.hpp>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -58,56 +59,10 @@ int main()
 
 
     
-    //cube vertices 
-    std::vector<float> cubeVertices = {
-        // Back face
-        -0.5f, -0.5f, -0.5f, 1,0,0, 0,0,
-         0.5f, -0.5f, -0.5f, 0,1,0, 1,0,
-         0.5f,  0.5f, -0.5f, 0,0,1, 1,1,
-        -0.5f,  0.5f, -0.5f, 1,1,0, 0,1,
-
-        // Front face
-        -0.5f, -0.5f,  0.5f, 1,0,0, 0,0,
-         0.5f, -0.5f,  0.5f, 0,1,0, 1,0,
-         0.5f,  0.5f,  0.5f, 0,0,1, 1,1,
-        -0.5f,  0.5f,  0.5f, 1,1,0, 0,1,
-
-        // Left face
-        -0.5f, -0.5f, -0.5f, 1,0,1, 0,0,
-        -0.5f, -0.5f,  0.5f, 0,1,1, 1,0,
-        -0.5f,  0.5f,  0.5f, 0,1,0, 1,1,
-        -0.5f,  0.5f, -0.5f, 1,1,0, 0,1,
-
-        // Right face
-         0.5f, -0.5f, -0.5f, 1,0,1, 0,0,
-         0.5f, -0.5f,  0.5f, 0,1,1, 1,0,
-         0.5f,  0.5f,  0.5f, 0,1,0, 1,1,
-         0.5f,  0.5f, -0.5f, 1,1,0, 0,1,
-
-         // Bottom
-         -0.5f, -0.5f, -0.5f, 1,0,1, 0,1,
-          0.5f, -0.5f, -0.5f, 1,1,1, 1,1,
-          0.5f, -0.5f,  0.5f, 1,1,0, 1,0,
-         -0.5f, -0.5f,  0.5f, 1,0,1, 0,0,
-
-         // Top
-         -0.5f,  0.5f, -0.5f, 1,1,0, 0,1,
-          0.5f,  0.5f, -0.5f, 0,1,1, 1,1,
-          0.5f,  0.5f,  0.5f, 0,1,1, 1,0,
-         -0.5f,  0.5f,  0.5f, 1,1,0, 0,0
-    };
-
-
-
-    std::vector<unsigned int> cubeIndices = {
-        0,1,2, 2,3,0,       // back
-        4,5,6, 6,7,4,       // front
-        8,9,10, 10,11,8,    // left
-        12,13,14, 14,15,12, // right
-        16,17,18, 18,19,16, // bottom
-        20,21,22, 22,23,20  // top
-    };
-
+    //load chunk
+    Chunk chunk(glm::vec3(0, 0, 0));
+    chunk.generateTestData();
+    chunk.buildMesh();
 
 
 
@@ -118,12 +73,6 @@ int main()
 
     //Texture loading
     Texture texture("textures/noise.jpg");
-
-
-
-    // load vertices into mesh
-    Mesh mesh = Mesh();
-    mesh.update(cubeVertices, cubeIndices);
 
 
 
@@ -141,26 +90,22 @@ int main()
         
         texture.bind(0);
 
-
-        // Model transform
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-        shader.setMat4("model", model);
-
         // View transform (camera)
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -50.0f));
         shader.setMat4("view", view);
 
-        // Projection (perspective)
+        // Projection
         glm::mat4 projection = glm::perspective(
             glm::radians(45.0f),
             (float)SCR_WIDTH / (float)SCR_HEIGHT,
             0.1f,
-            100.0f
+            1000.0f
         );
         shader.setMat4("projection", projection);
 
-        mesh.draw();
+        shader.setMat4("model", glm::mat4(1.0f));
+
+        chunk.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
