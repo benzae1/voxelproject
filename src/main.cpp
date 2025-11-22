@@ -60,8 +60,8 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 
 int main()
 {
-    const unsigned int SCR_WIDTH = 800;
-    const unsigned int SCR_HEIGHT = 600;
+    const unsigned int SCR_WIDTH = 2560;
+    const unsigned int SCR_HEIGHT = 1440;
 
     // Initialise glfw
     glfwInit();
@@ -72,7 +72,7 @@ int main()
 
 
     // Create window + allow for cursor look around
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL", glfwGetPrimaryMonitor(), NULL);
     if (window == NULL) {
         std::cout << "GLAD not working";
         glfwTerminate();
